@@ -1,9 +1,11 @@
-from typing import Type
 from bs4 import BeautifulSoup as bs
 from flask import Flask
 from flask_cors import CORS, cross_origin
 import requests, re, json
 
+app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 def parse_phone(_data_string):
     _match = re.search('[0-9-]+', _data_string)
@@ -24,11 +26,11 @@ def parse_link(_data_string):
 
 def parse_brief(_data_string):
     _cb = {
-        "未額滿": False,
+        "可預約": False,
         "疫苗種類": []
     }
     if "未額滿" in _data_string:
-        _cb["未額滿"] = True
+        _cb["可預約"] = True
     if "AZ" in _data_string:
         _cb["疫苗種類"].append("AZ")
     if "Moderna" in _data_string:
@@ -55,15 +57,14 @@ def crawler(_url):
         export_data.append(_data)
     return export_data
 
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-
 @app.route("/")
+def home():
+    return "<h1>hello</h1>"
+@app.route("/vaxx-taoyuan")
 @cross_origin()
-def hello_world():
+def vaxx_taoyuan():
     datas = crawler("https://covid-19.tycg.gov.tw/home.jsp?id=82&parentpath=0,54&websiteid=202105260001")
-    return json.dumps(datas)
+    return json.dumps(datas, ensure_ascii=False)
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
