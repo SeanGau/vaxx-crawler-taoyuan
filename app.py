@@ -1,6 +1,5 @@
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS, cross_origin
-import requests, re, json
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -18,8 +17,13 @@ def home():
 @app.route("/vaxx-taoyuan")
 @cross_origin()
 def vaxx_taoyuan():
-    with open("static/datas/vaxx_taoyuan.json", encoding="utf-8") as json_file:
-        return json_file.read()
+    file_type = request.args.get("filetype", "csv")
+    if file_type is "csv":
+        with open("static/datas/vaxx_taoyuan.csv", encoding="utf-8-sig") as csv_file:
+            return csv_file.read()
+    else:
+        with open("static/datas/vaxx_taoyuan.json", encoding="utf-8") as json_file:
+            return json_file.read()
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
